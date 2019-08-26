@@ -1,7 +1,7 @@
 # Личный проект «Большое путешествие» [![Build status][travis-image]][travis-url]
 
 * Студент: [Elena Skrebneva](https://up.htmlacademy.ru/ecmascript/9/user/774235).
-* Наставник: `Неизвестно`.
+* Наставник: [Vladimir Chebakov](https://htmlacademy.ru/profile/id1100789).
 
 ---
 
