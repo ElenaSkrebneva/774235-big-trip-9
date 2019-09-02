@@ -1,5 +1,6 @@
 import {createMainNav} from '../src/components/mainNav.js';
 import {createMainFilters} from '../src/components/mainFilters.js';
+import {createPoint} from '../src/components/point.js';
 import {createEvent} from '../src/components/event.js';
 import {createEditEvent} from '../src/components/editEvent.js';
 import {createTripInfoMain} from '../src/components/tripInfo.js';
@@ -30,16 +31,13 @@ render(createTripSorters(), tripEvents, `beforeend`);
 
 // Render days list
 render(createTripDays(), tripEvents, `beforeend`);
-const tripDaysList = document.querySelector(`.trip-days`);
 const tripDays = document.querySelectorAll(`.trip-days__item`);
 // Render a day list of events
 for (let i = 0; i < tripDays.length; i++) {
   render(createTripEventsList(), tripDays[i], `beforeend`);
 }
-const tripEventsList = document.querySelector(`.trip-events__list`);
-const tripEventsItems = document.querySelectorAll(`.trip-events__item`);
 // Render events
-render(createEditEvent(), document.querySelectorAll(`.trip-events__item`)[0], `beforeend`);
-render(createEvent(), document.querySelectorAll(`.trip-events__item`)[1], `beforeend`);
-render(createEvent(), document.querySelectorAll(`.trip-events__item`)[2], `beforeend`);
-render(createEvent(), document.querySelectorAll(`.trip-events__item`)[2], `beforeend`);
+render(createEditEvent(createPoint()), document.querySelectorAll(`.trip-events__item`)[0], `beforeend`);
+render(createEvent(createPoint()), document.querySelectorAll(`.trip-events__item`)[1], `beforeend`);
+render(createEvent(createPoint()), document.querySelectorAll(`.trip-events__item`)[2], `beforeend`);
+render(createEvent(createPoint()), document.querySelectorAll(`.trip-events__item`)[2], `beforeend`);
