@@ -6,9 +6,33 @@ export const createPoint = () => {
     beginningTime: Date.now() + Math.floor((Math.random() * 2 - 1) * 7 * 24 * 3600000),
     endingTime: Date.now() + Math.floor((Math.random() * 2 - 1) * 7 * 24 * 3600000),
     price: Math.floor(Math.random() * 1000),
-    isFavorite: Boolean(Math.floor(Math.random()))
+    isFavorite: Boolean(Math.floor(Math.random())),
+    optionals: getOptionals()
   };
 };
+
+const getOptionals = () => ([
+  {
+    name: `Add luggage`,
+    price: 10,
+    flag: Boolean(Math.round(Math.random()))
+  },
+  {
+    name: `Switch to comfort class`,
+    price: 150,
+    flag: Boolean(Math.round(Math.random()))
+  },
+  {
+    name: `Add meal`,
+    price: 2,
+    flag: Boolean(Math.round(Math.random()))
+  },
+  {
+    name: `Choose seats`,
+    price: 9,
+    flag: Boolean(Math.round(Math.random()))
+  }
+]);
 
 const getDescription = () => {
   let num = Math.floor((Math.random() + 0.34) * 2.6);
@@ -31,6 +55,7 @@ const descriptionSentances = [
   `Nunc fermentum tortor ac porta dapibus. `,
   `In rutrum ac purus sit amet tempus`
 ];
+
 const destinationList = [
   `Moscow`,
   `Gonalulu`,
@@ -41,6 +66,7 @@ const destinationList = [
   `Rio de Janeiro`,
   `Tokio`
 ];
+
 const eventTypeList = [
   `bus`,
   `check-in`,
