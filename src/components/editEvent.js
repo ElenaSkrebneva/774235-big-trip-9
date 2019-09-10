@@ -1,3 +1,5 @@
+const cityAr = [`Moscow`, `Miami`, `Palma de Majorca`, `San Fransisco`, `Chicago`, `Milano`];
+
 export const createEditEvent = ({type, destination, description, beginningTime, endingTime, price, isFavorite, optionals}) => `
     <form class="event event--edit" action="#" method="post">
       <header class="event__header">
@@ -75,14 +77,7 @@ export const createEditEvent = ({type, destination, description, beginningTime, 
           </label>
           <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${destination}" list="destination-list-1">
           <datalist id="destination-list-1">
-            <option value="Moscow">Moscow</option>
-            <option value="Sochi">Sochi</option>
-            <option value="Miami">Miami</option>
-            <option value="Sydney">Sydney</option>
-            <option value="Tokio">Tokio</option>
-            <option value="Rio de Janeiro">Rio de Janeiro</option>
-            <option value="Gonalulu">Gonalulu</option>
-            <option value="Valencia">Valencia</option>
+          ${cityAr.map((city) => `<option value="${city}">${city}</option>`).join(``)}
           </datalist>
         </div>
 
@@ -129,7 +124,7 @@ export const createEditEvent = ({type, destination, description, beginningTime, 
           <h3 class="event__section-title  event__section-title--offers">Offers</h3>
           <div class="event__available-offers">
           ${
-            optionals.map((option) => `
+  optionals.map((option) => `
               <div class="event__offer-selector">
                 <input class="event__offer-checkbox  visually-hidden"
                   id="event-offer-${option.name}-1" type="checkbox"

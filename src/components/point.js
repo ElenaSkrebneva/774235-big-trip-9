@@ -1,47 +1,3 @@
-export const createPoint = () => {
-  return {
-    type: eventTypeList[Math.floor(Math.random() * 11)],
-    destination: destinationList[Math.floor(Math.random() * 8)],
-    description: getDescription(),
-    beginningTime: Date.now() + Math.floor((Math.random() * 2 - 1) * 7 * 24 * 3600000),
-    endingTime: Date.now() + Math.floor((Math.random() * 2 - 1) * 7 * 24 * 3600000),
-    price: Math.floor(Math.random() * 1000),
-    isFavorite: Boolean(Math.floor(Math.random())),
-    optionals: getOptionals()
-  };
-};
-
-const getOptionals = () => ([
-  {
-    name: `Add luggage`,
-    price: 10,
-    flag: Boolean(Math.round(Math.random()))
-  },
-  {
-    name: `Switch to comfort class`,
-    price: 150,
-    flag: Boolean(Math.round(Math.random()))
-  },
-  {
-    name: `Add meal`,
-    price: 2,
-    flag: Boolean(Math.round(Math.random()))
-  },
-  {
-    name: `Choose seats`,
-    price: 9,
-    flag: Boolean(Math.round(Math.random()))
-  }
-]);
-
-const getDescription = () => {
-  let num = Math.floor((Math.random() + 0.34) * 2.6);
-  let desc = ``;
-  for (let i = 0; i <= num; i++) {
-    desc += descriptionSentances[Math.floor(Math.random() * descriptionSentances.length)];
-  }
-  return desc;
-};
 const descriptionSentances = [
   `Lorem ipsum dolor sit amet, consectetur adipiscing elit. `,
   `Cras aliquet varius magna, non porta ligula feugiat eget. `,
@@ -80,3 +36,48 @@ const eventTypeList = [
   `transport`,
   `trip`
 ];
+
+const getOptionals = () => ([
+  {
+    name: `Add luggage`,
+    price: 10,
+    flag: Boolean(Math.round(Math.random()))
+  },
+  {
+    name: `Switch to comfort class`,
+    price: 150,
+    flag: Boolean(Math.round(Math.random()))
+  },
+  {
+    name: `Add meal`,
+    price: 2,
+    flag: Boolean(Math.round(Math.random()))
+  },
+  {
+    name: `Choose seats`,
+    price: 9,
+    flag: Boolean(Math.round(Math.random()))
+  }
+]);
+
+const getDescription = () => {
+  let num = Math.floor((Math.random() + 0.34) * 2.6);
+  let desc = ``;
+  for (let i = 0; i <= num; i++) {
+    desc += descriptionSentances[Math.floor(Math.random() * descriptionSentances.length)];
+  }
+  return desc;
+};
+
+export const createPoint = () => {
+  return {
+    type: eventTypeList[Math.floor(Math.random() * 11)],
+    destination: destinationList[Math.floor(Math.random() * 8)],
+    description: getDescription(),
+    beginningTime: Date.now() + Math.floor((Math.random() * 2 - 1) * 7 * 24 * 3600000),
+    endingTime: Date.now() + Math.floor((Math.random() * 2 - 1) * 7 * 24 * 3600000),
+    price: Math.floor(Math.random() * 1000),
+    isFavorite: Boolean(Math.floor(Math.random())),
+    optionals: getOptionals()
+  };
+};

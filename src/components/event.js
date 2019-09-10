@@ -1,4 +1,4 @@
-export const createEvent = ({type, beginningTime, endingTime, price}) => {
+export const createEvent = ({type, beginningTime, endingTime, price, optionals}) => {
   let duration = Math.abs(endingTime - beginningTime);
   let days = Math.floor(duration / (24 * 3600000));
   let rest1 = duration % (24 * 3600000);
@@ -27,11 +27,15 @@ export const createEvent = ({type, beginningTime, endingTime, price}) => {
 
       <h4 class="visually-hidden">Offers:</h4>
       <ul class="event__selected-offers">
-        <li class="event__offer">
-          <span class="event__offer-title">Order Uber</span>
-          &plus;
-          &euro;&nbsp;<span class="event__offer-price">20</span>
-         </li>
+      ${optionals.map((option) => `
+          ${option.flag ? `` : `
+            <li class="event__offer">
+              <span class="event__offer-title">${option.name}</span>
+              &plus;
+              &euro;&nbsp;<span class="event__offer-price">${option.price}</span>
+            </li>
+            `}
+        `).join(``)}
       </ul>
 
       <button class="event__rollup-btn" type="button">
