@@ -1,8 +1,5 @@
-export const createTripEventsList = () => `
+export const createTripEventsList = (arr) => `
 <ul class="trip-events__list">
-  <li class="trip-events__item"></li>
-  <li class="trip-events__item"></li>
-  <li class="trip-events__item"></li>
-  <li class="trip-events__item"></li>
+  ${arr.map((element) => `<li class="trip-events__item"></li>`).join(``)}
 </ul>
 `;
