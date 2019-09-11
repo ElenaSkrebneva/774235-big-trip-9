@@ -27,7 +27,7 @@ export const createEvent = ({type, beginningTime, endingTime, price, optionals})
 
       <h4 class="visually-hidden">Offers:</h4>
       <ul class="event__selected-offers">
-      ${optionals.map((option) => `
+      ${Array.from(optionals).map((option) => `
           ${option.flag ? `` : `
             <li class="event__offer">
               <span class="event__offer-title">${option.name}</span>
