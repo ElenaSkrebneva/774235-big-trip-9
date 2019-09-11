@@ -42,12 +42,12 @@ pointsArray.sort((a, b) => {
 });
 // slice an array of events by days
 const slices = [];
-for (let i = 0, g = 0, h = 0; i < pointsArray.length; i += 0) {
+for (let i = 0, g = 0; i < pointsArray.length; i += 0) {
   slices[g] = [];
   slices[g].push(pointsArray[i]);
-  h = i + 1;
+  let h = i + 1;
   while (h < pointsArray.length &&
-    Math.floor(pointsArray[i].beginningTime / 3600000) === Math.floor(pointsArray[h].beginningTime / 3600000)) {
+    (new Date(pointsArray[i].beginningTime)).getDate() === (new Date(pointsArray[h].beginningTime)).getDate()) {
     slices[g].push(pointsArray[h]);
     h++;
   }

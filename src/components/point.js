@@ -37,7 +37,7 @@ const eventTypeList = [
   `trip`
 ];
 
-const getOptionals = () => ([
+const optionalsList = [
   {
     name: `Add luggage`,
     price: 10,
@@ -58,7 +58,16 @@ const getOptionals = () => ([
     price: 9,
     flag: Boolean(Math.round(Math.random()))
   }
-]);
+];
+
+const getOptionals = () => {
+  let num = Math.round(Math.random() * 2);
+  const optionalsSet = new Set();
+  for (let i = 0; i <= num; i++) {
+    optionalsSet.add(optionalsList[Math.floor(Math.random() * optionalsList.length)]);
+  }
+  return optionalsSet;
+};
 
 const getDescription = () => {
   let num = Math.floor((Math.random() + 0.34) * 2.6);
