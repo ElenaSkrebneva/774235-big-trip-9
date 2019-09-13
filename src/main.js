@@ -1,33 +1,28 @@
+import {renderHTML} from '../src/utilFuncs.js';
 import {createMainNav} from '../src/components/mainNav.js';
 import {createMainFilters} from '../src/components/mainFilters.js';
 import {createPoint} from '../src/components/point.js';
-import {createEvent} from '../src/components/event.js';
-import {createEditEvent} from '../src/components/editEvent.js';
+import {NormalEvent} from '../src/components/event.js';
+import {EditEvent} from '../src/components/editEvent.js';
 import {createTripInfoMain} from '../src/components/tripInfo.js';
 import {createTripSorters} from '../src/components/tripSorters.js';
 import {createTripDays} from '../src/components/tripDays.js';
 import {createTripEventsList} from '../src/components/tripEventsList.js';
 
-// Render function
-const render = (element, parent, place) => {
-  parent.insertAdjacentHTML(place, element);
-  return ``;
-};
-
 // Render tripInfo
 const tripInfo = document.querySelector(`.trip-main__trip-info `);
-render(createTripInfoMain(), tripInfo, `afterbegin`);
+renderHTML(createTripInfoMain(), tripInfo, `afterbegin`);
 
 // Render mainNav
 const tripControls = document.querySelector(`.trip-main__trip-controls`);
-render(createMainNav(), tripControls, `beforeend`);
+renderHTML(createMainNav(), tripControls, `beforeend`);
 
 // Render mainFilters
-render(createMainFilters(), tripControls, `beforeend`);
+renderHTML(createMainFilters(), tripControls, `beforeend`);
 
 // Render tripSorters
 const tripEvents = document.querySelector(`.trip-events`);
-render(createTripSorters(), tripEvents, `beforeend`);
+renderHTML(createTripSorters(), tripEvents, `beforeend`);
 
 // Create an array of events
 const EVENTS_COUNTER = 10;
@@ -56,21 +51,45 @@ for (let i = 0, g = 0; i < pointsArray.length; i += 0) {
 }
 
 // Render days list
-render(createTripDays(slices), tripEvents, `beforeend`);
+renderHTML(createTripDays(slices), tripEvents, `beforeend`);
 const tripDays = document.querySelectorAll(`.trip-days__item`);
 // Render a day list of events for every day
 for (let i = 0; i < slices.length; i++) {
-  render(createTripEventsList(slices[i]), tripDays[i], `beforeend`);
+  renderHTML(createTripEventsList(slices[i]), tripDays[i], `beforeend`);
 }
 
 // Render events
+const renderEvent = (item, parent) =>{
+  const card = new NormalEvent(item);
+  const cardEdit = new EditEvent(item);
+  const onEscKeyDown = (evt) => {
+    if (evt.key === `Escape` || evt.key === `Esc`) {
+      cardEdit.getElement().replaceWith(card.getElement());
+      document.removeEventListener(`keydown`, onEscKeyDown);
+    }
+  };
+
+  card.getElement().querySelector(`.event__rollup-btn`).addEventListener(`click`, () => {
+    card.getElement().replaceWith(cardEdit.getElement());
+    document.addEventListener(`keydown`, onEscKeyDown);
+  });
+  cardEdit.getElement().querySelector(`.event__rollup-btn`).addEventListener(`click`, () => {
+    cardEdit.getElement().replaceWith(card.getElement());
+    document.removeEventListener(`keydown`, onEscKeyDown);
+  });
+  cardEdit.getElement().onsubmit = () => {
+    cardEdit.getElement().replaceWith(card.getElement());
+    document.removeEventListener(`keydown`, onEscKeyDown);
+  };
+
+  parent.appendChild(card.getElement());
+};
 const eventItems = document.querySelectorAll(`.trip-events__item`);
-render(createEditEvent(pointsArray[0]), eventItems[0], `beforeend`);
-for (let i = 1; i < pointsArray.length; i++) {
-  render(createEvent(pointsArray[i]), eventItems[i], `beforeend`);
+for (let i = 0; i < pointsArray.length; i++) {
+  renderEvent(pointsArray[i], eventItems[i]);
 }
 
-// filters action
+// filters actions
 const filterPast = document.getElementById(`filter-past`);
 const filterFuture = document.getElementById(`filter-future`);
 const filterEverything = document.getElementById(`filter-everything`);
