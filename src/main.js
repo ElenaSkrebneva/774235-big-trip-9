@@ -1,17 +1,18 @@
-import {renderHTML} from '../src/utilFuncs.js';
-import {createMainNav} from '../src/components/mainNav.js';
-import {createMainFilters} from '../src/components/mainFilters.js';
+import {renderHTML, renderElement} from '../src/utilFuncs.js';
+import {MainNav} from '../src/components/mainNav.js';
+import {MainFilters} from '../src/components/mainFilters.js';
 import {createPoint} from '../src/components/point.js';
 import {NormalEvent} from '../src/components/event.js';
 import {EditEvent} from '../src/components/editEvent.js';
-import {createTripInfoMain} from '../src/components/tripInfo.js';
-import {createTripSorters} from '../src/components/tripSorters.js';
-import {createTripDays} from '../src/components/tripDays.js';
-import {createTripEventsList} from '../src/components/tripEventsList.js';
+import {TripInfoMain} from '../src/components/tripInfo.js';
+import {TripSorters} from '../src/components/tripSorters.js';
+import {TripDays} from '../src/components/tripDays.js';
+import {TripEventsList} from '../src/components/tripEventsList.js';
+import {TripController} from '../src/components/tripController.js';
 
 const EVENTS_COUNTER = 14;
 const tripEvents = document.querySelector(`.trip-events`);
-
+/*
 // Render event function
 const renderEvent = (item, parent) =>{
   const card = new NormalEvent(item);
@@ -38,21 +39,21 @@ const renderEvent = (item, parent) =>{
 
   parent.appendChild(card.getElement());
 };
-
+*/
 // Render tripInfo
 const tripInfo = document.querySelector(`.trip-main__trip-info `);
-renderHTML(createTripInfoMain(), tripInfo, `afterbegin`);
+renderElement(new TripInfoMain().getElement(), tripInfo, `afterbegin`);
 
 // Render mainNav
 const tripControls = document.querySelector(`.trip-main__trip-controls`);
-renderHTML(createMainNav(), tripControls, `beforeend`);
+renderElement(new MainNav().getElement(), tripControls, `beforeend`);
 
 // Render mainFilters
-renderHTML(createMainFilters(), tripControls, `beforeend`);
+renderElement(new MainFilters().getElement(), tripControls, `beforeend`);
 
 // Render tripSorters
 if (EVENTS_COUNTER > 0) {
-  renderHTML(createTripSorters(), tripEvents, `beforeend`);
+  renderElement(new TripSorters().getElement(), tripEvents, `beforeend`);
 }
 
 
@@ -62,6 +63,9 @@ for (let i = 0; i < EVENTS_COUNTER; i++) {
   pointsArray[i] = createPoint();
 }
 
+const tripController = new TripController(tripEvents, pointsArray);
+tripController.init();
+/*
 if (pointsArray.length > 0) {
   // sort an array of events by beginning time
   pointsArray.sort((a, b) => {
@@ -84,11 +88,11 @@ if (pointsArray.length > 0) {
   }
 
   // Render days list
-  renderHTML(createTripDays(slices), tripEvents, `beforeend`);
+  renderHTML(new TripDays().getTemplate(slices), tripEvents, `beforeend`);
   const tripDays = document.querySelectorAll(`.trip-days__item`);
   // Render a day list of events for every day
   for (let i = 0; i < slices.length; i++) {
-    renderHTML(createTripEventsList(slices[i]), tripDays[i], `beforeend`);
+    renderHTML(new TripEventsList().getTemplate(slices[i]), tripDays[i], `beforeend`);
   }
   // Rener events
   const eventItems = document.querySelectorAll(`.trip-events__item`);
@@ -170,7 +174,7 @@ if (pointsArray.length > 0) {
   });
 }
 document.querySelector(`.trip-info__cost-value`).innerHTML = tripCost;
-
+*/
 // if tripEvents is empty
 if (tripEvents.querySelector(`.trip-days`) === null) {
   tripEvents.innerHTML = `<p class="trip-events__msg">Click New Event to create your first point</p>`;
