@@ -1,17 +1,19 @@
 import {NormalEvent} from './event.js';
 import {EditEvent} from './editEvent.js';
-import {renderHTML} from '../utilFuncs.js';
+import {renderHTML, renderElement} from '../utilFuncs.js';
 import {TripDays} from '../components/tripDays.js';
 import {TripEventsList} from '../components/tripEventsList.js';
+import {TripSorters} from './tripSorters.js';
 
 export class TripController {
   constructor(container, arr) {
     this._container = container;
     this.points = arr;
+    this._sorter = new TripSorters();
   }
   init() {
     // Render event function
-    const renderEvent = (item, parent) =>{
+    const renderEvent = (item, parent) => {
       const card = new NormalEvent(item);
       const cardEdit = new EditEvent(item);
       const onEscKeyDown = (evt) => {
@@ -20,7 +22,6 @@ export class TripController {
           document.removeEventListener(`keydown`, onEscKeyDown);
         }
       };
-
       card.getElement().querySelector(`.event__rollup-btn`).addEventListener(`click`, () => {
         card.getElement().replaceWith(cardEdit.getElement());
         document.addEventListener(`keydown`, onEscKeyDown);
@@ -36,47 +37,84 @@ export class TripController {
 
       parent.appendChild(card.getElement());
     };
-
-    if (this.points.length > 0) {
-      // sort an array of events by beginning time
-      this.points.sort((a, b) => {
-        return a.beginningTime - b.beginningTime;
-      });
-
-      // slice an array of events by days
-      const slices = [];
-      for (let i = 0, g = 0; i < this.points.length; i += 0) {
-        slices[g] = [];
-        slices[g].push(this.points[i]);
-        let h = i + 1;
-        while (h < this.points.length &&
-          (new Date(this.points[i].beginningTime)).getDate() === (new Date(this.points[h].beginningTime)).getDate()) {
-          slices[g].push(this.points[h]);
-          h++;
-        }
-        i = h;
-        g++;
-      }
-
-      // Render days list
+    // render event list function
+    const renderLists = (slices) => {
       renderHTML(new TripDays().getTemplate(slices), this._container, `beforeend`);
       const tripDays = document.querySelectorAll(`.trip-days__item`);
       // Render a day list of events for every day
       for (let i = 0; i < slices.length; i++) {
         renderHTML(new TripEventsList().getTemplate(slices[i]), tripDays[i], `beforeend`);
       }
-      // Rener events
+      // Render events
       const eventItems = document.querySelectorAll(`.trip-events__item`);
       for (let i = 0; i < this.points.length; i++) {
         renderEvent(this.points[i], eventItems[i]);
       }
+    };
 
+    if (this.points.length > 0) {
+      // sort by day function
+      const sortByDay = () => {
+        this._container.innerHTML = ``;
+        renderElement(this._sorter.getElement(), this._container, `beforeend`);
+        this.points.sort((a, b) => {
+          return a.beginningTime - b.beginningTime;
+        });
+        const slices = [];
+        for (let i = 0, g = 0; i < this.points.length; i += 0) {
+          slices[g] = [];
+          slices[g].push(this.points[i]);
+          let h = i + 1;
+          while (h < this.points.length &&
+            (new Date(this.points[i].beginningTime)).getDate() === (new Date(this.points[h].beginningTime)).getDate()) {
+            slices[g].push(this.points[h]);
+            h++;
+          }
+          i = h;
+          g++;
+        }
+        renderLists(slices);
+      };
+      // sort by price function
+      const sortByPrice = () => {
+        this.points.sort((a, b) => {
+          return a.price - b.price;
+        });
+        this._container.innerHTML = ``;
+        renderElement(this._sorter.getElement(), this._container, `beforeend`);
+        let dumbArr = [];
+        dumbArr[0] = this.points;
+        renderLists(dumbArr);
+      };
+      // sort by time function
+      const sortByTime = () => {
+        this.points.sort((a, b) => {
+          return (a.endingTime - a.beginningTime) - (b.endingTime - b.beginningTime);
+        });
+        this._container.innerHTML = ``;
+        renderElement(this._sorter.getElement(), this._container, `beforeend`);
+        let dumbArr = [];
+        dumbArr[0] = this.points;
+        renderLists(dumbArr);
+      };
+      // sorter action
+      sortByDay();
+      document.getElementById(`sort-event`).addEventListener(`click`, () => {
+        sortByDay();
+      });
+      document.getElementById(`sort-price`).addEventListener(`click`, () => {
+        sortByPrice();
+      });
+      document.getElementById(`sort-time`).addEventListener(`click`, () => {
+        sortByTime();
+      });
       // filters actions
       const filterPast = document.getElementById(`filter-past`);
       const filterFuture = document.getElementById(`filter-future`);
       const filterEverything = document.getElementById(`filter-everything`);
+      const events = document.querySelectorAll(`.event`);
       if (filterFuture.checked) {
-        eventItems.forEach((eve) => {
+        events.forEach((eve) => {
           if (eve.querySelector(`.event--edit`)) {
             let timeString = eve.querySelector(`.event__input--time`).value;
             let time = new Date(timeString);
@@ -93,7 +131,7 @@ export class TripController {
         });
       }
       if (filterPast.checked) {
-        eventItems.forEach((eve) => {
+        events.forEach((eve) => {
           if (eve.querySelector(`.event--edit`)) {
             let timeString = eve.querySelector(`.event__input--time`).value;
             let time = new Date(timeString);
@@ -110,7 +148,7 @@ export class TripController {
         });
       }
       if (filterEverything.checked) {
-        eventItems.forEach((eve) => {
+        events.forEach((eve) => {
           eve.closest(`.trip-days__item`).style.display = `default`;
         });
       }
