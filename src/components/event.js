@@ -1,21 +1,12 @@
-import {createElement} from '../utilFuncs.js';
-export class NormalEvent {
+import {Component} from './abstractComponent.js';
+export class NormalEvent extends Component {
   constructor({type, beginningTime, endingTime, price, optionals}) {
+    super();
     this._type = type;
     this._beginningTime = beginningTime;
     this._endingTime = endingTime;
     this._price = price;
     this._optionals = optionals;
-    this._element = null;
-  }
-  getElement() {
-    if (!this._element) {
-      this._element = createElement(this.getTemplate());
-    }
-    return this._element;
-  }
-  removeElement() {
-    this._element = null;
   }
   getTemplate() {
     let duration = Math.abs(this._endingTime - this._beginningTime);

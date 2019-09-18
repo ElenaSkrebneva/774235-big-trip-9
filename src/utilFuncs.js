@@ -10,7 +10,7 @@ const renderElement = (element, parent, place) => {
       parent.appendChild(element);
       break;
     case `afterbegin`:
-      parent.prependChild(element);
+      parent.prepend(element);
       break;
     default:
       parent.appendChild(element);

@@ -1,6 +1,7 @@
-import {createElement} from '../utilFuncs.js';
-export class EditEvent {
+import {Component} from './abstractComponent.js';
+export class EditEvent extends Component {
   constructor({type, destination, description, beginningTime, endingTime, price, isFavorite, optionals}) {
+    super();
     this._type = type;
     this._destination = destination;
     this._description = description;
@@ -9,16 +10,6 @@ export class EditEvent {
     this._price = price;
     this._isFavorite = isFavorite;
     this._optionals = optionals;
-    this._element = null;
-  }
-  getElement() {
-    if (!this._element) {
-      this._element = createElement(this.getTemplate());
-    }
-    return this._element;
-  }
-  removeElement() {
-    this._element = null;
   }
   getTemplate() {
     return `<form class="event event--edit" action="#" method="post">
