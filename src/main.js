@@ -32,8 +32,3 @@ for (let i = 0; i < EVENTS_COUNTER; i++) {
 
 const tripController = new TripController(tripEvents, pointsArray);
 tripController.init();
-
-// if tripEvents is empty
-if (tripEvents.querySelector(`.trip-days`) === null) {
-  tripEvents.innerHTML = `<p class="trip-events__msg">Click New Event to create your first point</p>`;
-}

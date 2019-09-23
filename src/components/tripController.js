@@ -1,57 +1,34 @@
-import {NormalEvent} from './event.js';
-import {EditEvent} from './editEvent.js';
 import {renderHTML, renderElement} from '../utilFuncs.js';
-import {TripDays} from '../components/tripDays.js';
-import {TripEventsList} from '../components/tripEventsList.js';
+import {TripDays} from './tripDays.js';
+import {TripEventsList} from './tripEventsList.js';
 import {TripSorters} from './tripSorters.js';
+import {EventController} from './eventController.js';
 
 export class TripController {
   constructor(container, arr) {
     this._container = container;
     this.points = arr;
     this._sorter = new TripSorters();
+    this._subscriptions = [];
+    this._onChangeView = this._onChangeView.bind(this);
+    this._onDataChange = this._onDataChange.bind(this;
   }
   init() {
-    // Render event function
-    const renderEvent = (item, parent) => {
-      const card = new NormalEvent(item);
-      const cardEdit = new EditEvent(item);
-      const onEscKeyDown = (evt) => {
-        if (evt.key === `Escape` || evt.key === `Esc`) {
-          cardEdit.getElement().replaceWith(card.getElement());
-          document.removeEventListener(`keydown`, onEscKeyDown);
-        }
-      };
-      card.getElement().querySelector(`.event__rollup-btn`).addEventListener(`click`, () => {
-        card.getElement().replaceWith(cardEdit.getElement());
-        document.addEventListener(`keydown`, onEscKeyDown);
-      });
-      cardEdit.getElement().querySelector(`.event__rollup-btn`).addEventListener(`click`, () => {
-        cardEdit.getElement().replaceWith(card.getElement());
-        document.removeEventListener(`keydown`, onEscKeyDown);
-      });
-      cardEdit.getElement().onsubmit = () => {
-        cardEdit.getElement().replaceWith(card.getElement());
-        document.removeEventListener(`keydown`, onEscKeyDown);
-      };
-
-      parent.appendChild(card.getElement());
-    };
-    // render event list function
+    // Render lists function
     const renderLists = (slices) => {
       renderHTML(new TripDays().getTemplate(slices), this._container, `beforeend`);
-      const tripDays = document.querySelectorAll(`.trip-days__item`);
+      const tripDaysElem = document.querySelectorAll(`.trip-days__item`);
       // Render a day list of events for every day
       for (let i = 0; i < slices.length; i++) {
-        renderHTML(new TripEventsList().getTemplate(slices[i]), tripDays[i], `beforeend`);
+        renderHTML(new TripEventsList().getTemplate(slices[i]), tripDaysElem[i], `beforeend`);
       }
       // Render events
-      const eventItems = document.querySelectorAll(`.trip-events__item`);
+      const eventItemsElem = document.querySelectorAll(`.trip-events__item`);
       for (let i = 0; i < this.points.length; i++) {
-        renderEvent(this.points[i], eventItems[i]);
+        new EventController(this.points[i], eventItemsElem[i]);
       }
     };
-
+    // if there are events to render
     if (this.points.length > 0) {
       // sort by day function
       const sortByDay = () => {
@@ -82,9 +59,7 @@ export class TripController {
         });
         this._container.innerHTML = ``;
         renderElement(this._sorter.getElement(), this._container, `beforeend`);
-        let dumbArr = [];
-        dumbArr[0] = this.points;
-        renderLists(dumbArr);
+        renderLists([this.points]);
       };
       // sort by time function
       const sortByTime = () => {
@@ -93,95 +68,100 @@ export class TripController {
         });
         this._container.innerHTML = ``;
         renderElement(this._sorter.getElement(), this._container, `beforeend`);
-        let dumbArr = [];
-        dumbArr[0] = this.points;
-        renderLists(dumbArr);
+        renderLists([this.points]);
       };
       // sorter action
       sortByDay();
-      document.getElementById(`sort-event`).addEventListener(`click`, () => {
+      document.querySelector(`#sort-event`).addEventListener(`click`, () => {
         sortByDay();
       });
-      document.getElementById(`sort-price`).addEventListener(`click`, () => {
+      document.querySelector(`#sort-price`).addEventListener(`click`, () => {
         sortByPrice();
       });
-      document.getElementById(`sort-time`).addEventListener(`click`, () => {
+      document.querySelector(`#sort-time`).addEventListener(`click`, () => {
         sortByTime();
       });
+
       // filters actions
-      const filterPast = document.getElementById(`filter-past`);
-      const filterFuture = document.getElementById(`filter-future`);
-      const filterEverything = document.getElementById(`filter-everything`);
-      const events = document.querySelectorAll(`.event`);
-      if (filterFuture.checked) {
-        events.forEach((eve) => {
+      const filterPastElem = document.querySelector(`#filter-past`);
+      const filterFutureElem = document.querySelector(`#filter-future`);
+      const filterEverythingElem = document.querySelector(`#filter-everything`);
+      const eventsElem = document.querySelectorAll(`.event`);
+      if (filterFutureElem.checked) {
+        eventsElem.forEach((eve) => {
           if (eve.querySelector(`.event--edit`)) {
-            let timeString = eve.querySelector(`.event__input--time`).value;
-            let time = new Date(timeString);
-            if (time < Date.now()) {
+            const timeStringElem = eve.querySelector(`.event__input--time`).value;
+            const timeElem = new Date(timeStringElem);
+            if (timeElem < Date.now()) {
               eve.closest(`.trip-days__item`).style.display = `none`;
             }
           } else {
-            let timeString = eve.querySelector(`.event__start-time`).innerHTML;
-            let time = new Date(timeString);
-            if (time < Date.now()) {
+            const timeStringElem = eve.querySelector(`.event__start-time`).innerHTML;
+            const timeElem = new Date(timeStringElem);
+            if (timeElem < Date.now()) {
               eve.closest(`.trip-days__item`).style.display = `none`;
             }
           }
         });
       }
-      if (filterPast.checked) {
-        events.forEach((eve) => {
+      if (filterPastElem.checked) {
+        eventsElem.forEach((eve) => {
           if (eve.querySelector(`.event--edit`)) {
-            let timeString = eve.querySelector(`.event__input--time`).value;
-            let time = new Date(timeString);
-            if (time >= Date.now()) {
+            let timeStringElem = eve.querySelector(`.event__input--time`).value;
+            let timeElem = new Date(timeString);
+            if (timeElem >= Date.now()) {
               eve.closest(`.trip-days__item`).style.display = `none`;
             }
           } else {
-            let timeString = eve.querySelector(`.event__start-time`).innerHTML;
-            let time = new Date(timeString);
-            if (time >= Date.now()) {
+            const timeStringElem = eve.querySelector(`.event__start-time`).innerHTML;
+            const timeElem = new Date(timeStringElem);
+            if (timeElem >= Date.now()) {
               eve.closest(`.trip-days__item`).style.display = `none`;
             }
           }
         });
       }
-      if (filterEverything.checked) {
-        events.forEach((eve) => {
+      if (filterEverythingElem.checked) {
+        eventsElem.forEach((eve) => {
           eve.closest(`.trip-days__item`).style.display = `default`;
         });
       }
 
       // render main info
-      const tripInfoTitle = document.querySelector(`.trip-info__title`);
-      const destAr = [];
-      this.points.forEach((point) => {
-        destAr.push(point.destination);
-      });
+      const tripInfoTitleElem = document.querySelector(`.trip-info__title`);
+      const destAr = this.points.map((point) => point.destination);
       const destSet = new Set(destAr);
       const destArFromSet = Array.from(destSet);
       switch (destSet.size) {
         case (1):
-          tripInfoTitle.innerHTML = `${destArFromSet[0]}&mdash;${destArFromSet[0]}`;
+          tripInfoTitleElem.innerHTML = `${destArFromSet[0]}&mdash;${destArFromSet[0]}`;
           break;
         case (2):
-          tripInfoTitle.innerHTML = `${destArFromSet[0]}&mdash;${destArFromSet[1]}`;
+          tripInfoTitleElem.innerHTML = `${destArFromSet[0]}&mdash;${destArFromSet[1]}`;
           break;
         case (3):
-          tripInfoTitle.innerHTML = `${destArFromSet[0]}&mdash;${destArFromSet[1]}&mdash;${destArFromSet[2]}`;
+          tripInfoTitleElem.innerHTML = `${destArFromSet[0]}&mdash;${destArFromSet[1]}&mdash;${destArFromSet[2]}`;
           break;
         default:
-          tripInfoTitle.innerHTML = `${destArFromSet[0]}&mdash;...&mdash;${destArFromSet[destArFromSet.length - 1]}`;
+          tripInfoTitleElem.innerHTML = `${destArFromSet[0]}&mdash;...&mdash;${destArFromSet[destArFromSet.length - 1]}`;
+      }
+    }
+    // if no events to render
+    if (this.points.length = 0) {
+      const tripEventsElem = document.querySelector(`.trip-events`);
+      if (tripEventsElem.querySelector(`.trip-days`) === null) {
+        tripEventsElem.innerHTML = `<p class="trip-events__msg">Click New Event to create your first point</p>`;
       }
     }
     // render the trip sum
-    let tripCost = 0;
+    const tripCost = 0;
     if (this.points.length > 0) {
-      this.points.forEach(function (point) {
-        tripCost += point.price;
-      });
+      tripCost = this.points.reduce((sum, point) => sum + point.price, 0);
     }
     document.querySelector(`.trip-info__cost-value`).innerHTML = tripCost;
+  }
+  _rerender() {
+    document.querySelector(`.trip-days`).remove();
+
   }
 }
