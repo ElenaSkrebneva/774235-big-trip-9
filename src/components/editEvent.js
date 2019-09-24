@@ -25,31 +25,19 @@ export class EditEvent extends Component {
               <div class="event__type-list">
                 <fieldset class="event__type-group">
                   <legend class="visually-hidden">Transfer</legend>
-                  ${[
-                      `bus`,
-                      `drive`,
-                      `flight`,
-                      `ship`,
-                      `taxi`,
-                      `train`,
-                      `transport`,
-                      `trip`
-                    ].map((transfer) => `<div class="event__type-item">
+                  ${[`bus`, `drive`, `flight`, `ship`, `taxi`, `train`, `transport`, `trip`]
+                    .map((transfer) => `<div class="event__type-item">
                       <input id="event-type-${transfer}-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="${transfer}" ${this._type === transfer ? `checked` : ``}>
                       <label class="event__type-label  event__type-label--${transfer}" for="event-type-${transfer}-1">${transfer}</label>
-                    </div>`.join(``))}
+                    </div>`).join(``)}
                 </fieldset>
 
                 <fieldset class="event__type-group">
                   <legend class="visually-hidden">Activity</legend>
-                  ${[
-                      `check-in`,
-                      `sightseeing`,
-                      `restaurant`
-                    ].map((activity) => `<div class="event__type-item">
+                  ${[`check-in`, `sightseeing`, `restaurant`].map((activity) => `<div class="event__type-item">
                       <input id="event-type-${activity}-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="${activity}" ${this._type === activity ? `checked` : ``}>
                       <label class="event__type-label  event__type-label--${activity}" for="event-type-${activity}-1">${activity}</label>
-                    </div>`.join(``))}
+                    </div>`).join(``)}
                 </fieldset>
               </div>
             </div>
