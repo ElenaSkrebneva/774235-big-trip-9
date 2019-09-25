@@ -166,17 +166,8 @@ export class TripController {
     if (this.points.length > 0) {
       // sorter action
       this._renderEventsByDay();
-      document.querySelector(`#sort-event`).addEventListener(`click`, () => {
-        this._renderEventsByDay();
-      });
-      document.querySelector(`#sort-price`).addEventListener(`click`, () => {
-        this._renderEventsByPrice();
-      });
-      document.querySelector(`#sort-time`).addEventListener(`click`, () => {
-        this._renderEventsByTime();
-      });
-    this._renderTripInfo();
-    this._renderTripSum();
+      this._renderTripInfo();
+      this._renderTripSum();
     }
     // if no events to render
     if (this.points.length === 0) {
