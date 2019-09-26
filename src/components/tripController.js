@@ -10,6 +10,16 @@ export class TripController {
     this.points = arr;
     this._sorter = new TripSorters();
     this._subscriptions = [];
+    this._defaultView = {
+      type: `trip`,
+      destination: ``,
+      description: ``,
+      beginningTime: Date.now(),
+      endingTime: Date.now(),
+      price: 0,
+      isFavorite: false,
+      optionals: new Set()
+    };
     this._onChangeView = this._onChangeView.bind(this);
     this._onDataChange = this._onDataChange.bind(this);
   }
@@ -23,8 +33,14 @@ export class TripController {
     // Render events
     const eventItemsElem = document.querySelectorAll(`.trip-events__item`);
     for (let i = 0; i < this.points.length; i++) {
-      const eventController = new EventController(this.points[i], eventItemsElem[i], this._onChangeView, this._onDataChange);
-      this._subscriptions.push(eventController.setDefaultView.bind(eventController));
+      if (this.points[i] === this._defaultView) {
+        const eventController = new EventController(this.points[i], eventItemsElem[i], `adding`, this._onChangeView, this._onDataChange);
+        this._subscriptions.push(eventController.setDefaultView.bind(eventController));
+      }
+      else {
+        const eventController = new EventController(this.points[i], eventItemsElem[i], `default`, this._onChangeView, this._onDataChange);
+        this._subscriptions.push(eventController.setDefaultView.bind(eventController));
+      }
     }
   }
   _renderEventsByDay() {
@@ -179,7 +195,20 @@ export class TripController {
     this._subscriptions.forEach((it) => it());
   }
   _onDataChange(newData, oldData) {
-    this.points[this.points.findIndex((it2) => it2 === oldData)] = newData;
+    const indx = this.points.findIndex((point) => point === oldData);
+    if (newData === null) {
+      this.points = [...this.points.slice(0, indx), ...this.points.slice(indx + 1)];
+      // this._showedPoints = Math.min(this._showedPoints, this.points.length);
+    }
+    else {
+      this.points[indx] = newData;
+    }
     this._rerender();
+  }
+  createPoint() {
+    this.points.push(this._defaultView);
+    // const indx = this.points.findIndex((point) => point === this._defaultView);
+    this._rerender();
+    this._container.querySelector(`.event--edit`).querySelector(`.event__input--destination`).focus();
   }
 }

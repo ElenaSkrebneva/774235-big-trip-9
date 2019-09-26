@@ -1,16 +1,30 @@
 import {NormalEvent} from './event.js';
 import {EditEvent} from './editEvent.js';
+import flatpickr from 'flatpickr';
+import 'flatpickr/dist/flatpickr.min.css';
+import 'flatpickr/dist/themes/light.css';
 export class EventController {
-  constructor(data, parent, onChangeView, onDataChange) {
+  constructor(data, parent, mode, onChangeView, onDataChange) {
     this._data = data;
     this._parent = parent;
     this._onDataChange = onDataChange;
     this._onChangeView = onChangeView;
+    this._mode = mode;
     this.renderEvent();
   }
   renderEvent() {
     const card = new NormalEvent(this._data);
     const cardEdit = new EditEvent(this._data);
+    flatpickr(cardEdit.getElement().querySelector(`#event-start-time-1`), {
+      altInput: true,
+      allowInput: true,
+      defaultDate: this._data.beginningTime
+    });
+    flatpickr(cardEdit.getElement().querySelector(`#event-end-time-1`), {
+      altInput: true,
+      allowInput: true,
+      defaultDate: this._data.endingTime
+    });
     const onEscKeyDown = (evt) => {
       if (evt.key === `Escape` || evt.key === `Esc`) {
         cardEdit.getElement().replaceWith(card.getElement());
@@ -49,7 +63,7 @@ export class EventController {
         beginningTime: new Date(formData.get(`event-start-time`)).getTime(),
         endingTime: new Date(formData.get(`event-end-time`)).getTime(),
         isFavorite: formData.get(`event-favorite`),
-        price: parseInt(formData.get(`event-price`)),
+        price: parseInt(formData.get(`event-price`), 10),
         optionals: new Set(optionals)
       };
       if (entry.type !== this._data.type) {
@@ -106,7 +120,17 @@ export class EventController {
       this._onDataChange(entry, this._data);
       document.removeEventListener(`keydown`, onEscKeyDown);
     };
-    this._parent.appendChild(card.getElement());
+    cardEdit.getElement().onreset = (evt) => {
+      evt.preventDefault();
+      this._onDataChange(null, this._data);
+      document.removeEventListener(`keydown`, onEscKeyDown);
+    };
+    if (this._mode === `adding`) {
+      this._parent.appendChild(cardEdit.getElement());
+    }
+    else {
+      this._parent.appendChild(card.getElement());
+    }
   }
   setDefaultView() {
     const card = new NormalEvent(this._data);
