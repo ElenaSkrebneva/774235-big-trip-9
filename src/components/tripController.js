@@ -10,18 +10,9 @@ export class TripController {
     this.points = arr;
     this._sorter = new TripSorters();
     this._subscriptions = [];
-    this._defaultView = {
-      type: `trip`,
-      destination: ``,
-      description: ``,
-      beginningTime: Date.now(),
-      endingTime: Date.now(),
-      price: 0,
-      isFavorite: false,
-      optionals: new Set()
-    };
     this._onChangeView = this._onChangeView.bind(this);
     this._onDataChange = this._onDataChange.bind(this);
+    this._creatingPoint = null;
   }
   _renderLists(slices) {
     renderHTML(new TripDays().getTemplate(slices), this._container, `beforeend`);
@@ -33,7 +24,14 @@ export class TripController {
     // Render events
     const eventItemsElem = document.querySelectorAll(`.trip-events__item`);
     for (let i = 0; i < this.points.length; i++) {
-      if (this.points[i] === this._defaultView) {
+      if (
+        this.points[i].type === `sightseeing` &&
+        this.points[i].destination === `` &&
+        this.points[i].description === `` &&
+        this.points[i].beginningTime === new Date(0).getTime() &&
+        this.points[i].endingTime === new Date(0).getTime() &&
+        this.points[i].price == 0
+      ) {
         const eventController = new EventController(this.points[i], eventItemsElem[i], `adding`, this._onChangeView, this._onDataChange);
         this._subscriptions.push(eventController.setDefaultView.bind(eventController));
       }
@@ -87,6 +85,9 @@ export class TripController {
     const destSet = new Set(destAr);
     const destArFromSet = Array.from(destSet);
     switch (destSet.size) {
+      case (0):
+        tripInfoTitleElem.innerHTML = ``;
+        break;
       case (1):
         tripInfoTitleElem.innerHTML = `${destArFromSet[0]}&mdash;${destArFromSet[0]}`;
         break;
@@ -177,7 +178,9 @@ export class TripController {
     }
   }
   _rerender() {
-    document.querySelector(`.trip-days`).remove();
+    if (document.querySelector(`.trip-days`)) {
+      document.querySelector(`.trip-days`).remove();
+    }
     // if there are events to render
     if (this.points.length > 0) {
       // sorter action
@@ -200,15 +203,27 @@ export class TripController {
       this.points = [...this.points.slice(0, indx), ...this.points.slice(indx + 1)];
       // this._showedPoints = Math.min(this._showedPoints, this.points.length);
     }
+    else if (oldData === null) {
+      this._creatingPoint = null;
+      this.points.push(newData);
+    }
     else {
       this.points[indx] = newData;
     }
     this._rerender();
   }
   createPoint() {
-    this.points.push(this._defaultView);
-    // const indx = this.points.findIndex((point) => point === this._defaultView);
-    this._rerender();
-    this._container.querySelector(`.event--edit`).querySelector(`.event__input--destination`).focus();
+    if (this._creatingPoint) return;
+    const defaultPoint = {
+      type: `sightseeing`,
+      destination: ``,
+      description: ``,
+      beginningTime: new Date(0).getTime(),
+      endingTime: new Date(0).getTime(),
+      price: 0,
+      isFavorite: false,
+      optionals: new Set()
+    };
+    this._onDataChange(defaultPoint, null);
   }
 }

@@ -6,7 +6,7 @@ import {TripInfoMain} from './components/tripInfo.js';
 import {TripController} from './components/tripController.js';
 import {Stats} from './components/stats.js';
 
-const EVENTS_COUNTER = 14;
+const EVENTS_COUNTER = 0;
 const tripEvents = document.querySelector(`.trip-events`);
 
 // Render tripInfo

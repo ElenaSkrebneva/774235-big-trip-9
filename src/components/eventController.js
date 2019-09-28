@@ -6,6 +6,8 @@ import 'flatpickr/dist/themes/light.css';
 export class EventController {
   constructor(data, parent, mode, onChangeView, onDataChange) {
     this._data = data;
+    this._card = new NormalEvent(this._data);
+    this._cardEdit = new EditEvent(this._data);
     this._parent = parent;
     this._onDataChange = onDataChange;
     this._onChangeView = onChangeView;
@@ -13,8 +15,8 @@ export class EventController {
     this.renderEvent();
   }
   renderEvent() {
-    const card = new NormalEvent(this._data);
-    const cardEdit = new EditEvent(this._data);
+    const card = this._card;
+    const cardEdit = this._cardEdit;
     flatpickr(cardEdit.getElement().querySelector(`#event-start-time-1`), {
       altInput: true,
       allowInput: true,
@@ -133,10 +135,8 @@ export class EventController {
     }
   }
   setDefaultView() {
-    const card = new NormalEvent(this._data);
-    const cardEdit = new EditEvent(this._data);
-    if (this._parent.contains(cardEdit.getElement())) {
-      cardEdit.getElement().replaceWith(card.getElement());
+    if (this._parent.contains(this._cardEdit.getElement())) {
+      this._cardEdit.getElement().replaceWith(this._card.getElement());
     }
   }
 }
