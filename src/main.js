@@ -6,7 +6,7 @@ import {TripInfoMain} from './components/tripInfo.js';
 import {TripController} from './components/tripController.js';
 import {Stats} from './components/stats.js';
 
-const EVENTS_COUNTER = 6;
+const EVENTS_COUNTER = 12;
 const tripEvents = document.querySelector(`.trip-events`);
 
 // Render tripInfo
@@ -37,9 +37,9 @@ const tripController = new TripController(tripEvents, pointsArray);
 tripController.init();
 
 // render stats
-const stats = new Stats();
+const stats = new Stats(pointsArray);
 const statsElem = stats.getElement();
-renderElement(statsElem, document.querySelector(`.page-body__container`), `beforeend`);
+renderElement(statsElem, document.querySelector(`.trip-main`), `beforeend`);
 statsElem.classList.add(`visually-hidden`);
 
 // control__tasks
