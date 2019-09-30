@@ -23,6 +23,7 @@ export class TripController {
     }
     // Render events
     const eventItemsElem = document.querySelectorAll(`.trip-events__item`);
+    // mode for creating a new event
     for (let i = 0; i < this.points.length; i++) {
       if (
         this.points[i].type === `sightseeing` &&
@@ -30,12 +31,11 @@ export class TripController {
         this.points[i].description === `` &&
         this.points[i].beginningTime === new Date(0).getTime() &&
         this.points[i].endingTime === new Date(0).getTime() &&
-        this.points[i].price == 0
+        this.points[i].price === 0
       ) {
         const eventController = new EventController(this.points[i], eventItemsElem[i], `adding`, this._onChangeView, this._onDataChange);
         this._subscriptions.push(eventController.setDefaultView.bind(eventController));
-      }
-      else {
+      } else {
         const eventController = new EventController(this.points[i], eventItemsElem[i], `default`, this._onChangeView, this._onDataChange);
         this._subscriptions.push(eventController.setDefaultView.bind(eventController));
       }
@@ -178,6 +178,7 @@ export class TripController {
     }
   }
   _rerender() {
+    // if lists were already rendered before
     if (document.querySelector(`.trip-days`)) {
       document.querySelector(`.trip-days`).remove();
     }
@@ -202,18 +203,18 @@ export class TripController {
     if (newData === null) {
       this.points = [...this.points.slice(0, indx), ...this.points.slice(indx + 1)];
       // this._showedPoints = Math.min(this._showedPoints, this.points.length);
-    }
-    else if (oldData === null) {
+    } else if (oldData === null) {
       this._creatingPoint = null;
       this.points.push(newData);
-    }
-    else {
+    } else {
       this.points[indx] = newData;
     }
     this._rerender();
   }
   createPoint() {
-    if (this._creatingPoint) return;
+    if (this._creatingPoint) {
+      return;
+    }
     const defaultPoint = {
       type: `sightseeing`,
       destination: ``,

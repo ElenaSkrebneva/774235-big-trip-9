@@ -129,8 +129,7 @@ export class EventController {
     };
     if (this._mode === `adding`) {
       this._parent.appendChild(cardEdit.getElement());
-    }
-    else {
+    } else {
       this._parent.appendChild(card.getElement());
     }
   }
