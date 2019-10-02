@@ -1,6 +1,6 @@
 import {Component} from './abstractComponent.js';
 import {Chart} from 'chart.js';
-// import {ChartDataLabels} from 'chartjs-plugin-datalabels';
+import ChartDataLabels from 'chartjs-plugin-datalabels';
 
 export class Stats extends Component {
   constructor(arr) {
@@ -28,7 +28,7 @@ export class Stats extends Component {
 
     // moneyEvent chart
     const moneyEventCtx = new Chart(this.getElement().querySelector(`.statistics__chart--money`), {
-      //    plugins: [ChartDataLabels],
+      plugins: [ChartDataLabels],
       type: `horizontalBar`,
       data: {
         labels: arr.map((item) => item.destination),
@@ -38,6 +38,13 @@ export class Stats extends Component {
         }],
       },
       options: {
+        plugins: {
+          datalabels: {
+            color: `black`,
+            anchor: `end`,
+            align: `left`
+          }
+        },
         scales: {
             yAxes: [{
                 ticks: {
@@ -46,7 +53,8 @@ export class Stats extends Component {
             }],
           xAxes: [{
                 ticks: {
-                    fontColor: 'white'
+                    fontColor: 'white',
+                    min: 0,
                 },
             }]
         },
@@ -64,7 +72,7 @@ export class Stats extends Component {
     });
 
     // transport chart
-    const arrTransport = {
+    const objTransport = {
       bus: 0,
       drive: 0,
       flight: 0,
@@ -73,25 +81,37 @@ export class Stats extends Component {
       ship: 0
     };
 
-    Object.keys(arrTransport).forEach((key) => {
+    Object.keys(objTransport).forEach((key) => {
       arr.forEach((point) => {
         if (point.type === key) {
-          arrTransport[key]++;
+          objTransport[key]++;
         }
       });
     });
+    Object.keys(objTransport).forEach(key => {
+      if (objTransport[key] === 0) {
+        delete objTransport[key];
+      }
+    })
     const transportCtx = new Chart(this.getElement().querySelector(`.statistics__chart--transport`), {
-      //    plugins: [ChartDataLabels],
+      plugins: [ChartDataLabels],
       type: `horizontalBar`,
       data: {
-        labels: Object.keys(arrTransport),
+        labels: Object.keys(objTransport),
         datasets: [{
           backgroundColor: `orange`,
           borderColor: `blue`,
-          data: Object.values(arrTransport),
+          data: Object.values(objTransport),
         }],
       },
       options: {
+        plugins: {
+          datalabels: {
+            color: `black`,
+            anchor: `end`,
+            align: `left`
+          }
+        },
         scales: {
             yAxes: [{
                 ticks: {
@@ -100,7 +120,9 @@ export class Stats extends Component {
             }],
           xAxes: [{
                 ticks: {
-                    fontColor: 'white'
+                    fontColor: 'white',
+                    min: 0,
+                    stepSize: 1,
                 },
             }]
         },
@@ -108,7 +130,7 @@ export class Stats extends Component {
           display: false
         },
         title: {
-          text: `Money-Event Chart`,
+          text: `Transport Use Chart`,
           display: true,
           position: `top`,
           fontColor: `yellow`,
