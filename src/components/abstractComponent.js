@@ -5,6 +5,7 @@ export class Component {
       throw new Error(`Can't instantiate an abstract component, only concrete ones!`);
     }
     this._element = null;
+    this._state = {};
   }
   getElement() {
     if (!this._element) {
@@ -13,9 +14,10 @@ export class Component {
     return this._element;
   }
   removeElement() {
+    this._element.remove();
     this._element = null;
   }
   getTemplate() {
-    throw Error(`No template for abstract component!`);
+    throw new Error(`No template for abstract component!`);
   }
 }
