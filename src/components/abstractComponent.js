@@ -5,7 +5,6 @@ export class Component {
       throw new Error(`Can't instantiate an abstract component, only concrete ones!`);
     }
     this._element = null;
-    this._state = {};
   }
   getElement() {
     if (!this._element) {

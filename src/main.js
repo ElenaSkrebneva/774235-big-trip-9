@@ -5,9 +5,10 @@ import {createPoint} from './components/point.js';
 import {TripInfoMain} from './components/tripInfo.js';
 import {TripController} from './components/tripController.js';
 import {Stats} from './components/stats.js';
+import {API} from './api.js';
+import {toModelPoint} from './modelPoint.js'
 
 const EVENTS_COUNTER = 12;
-const tripEvents = document.querySelector(`.trip-events`);
 
 // Render tripInfo
 const tripInfo = document.querySelector(`.trip-main__trip-info `);
@@ -22,6 +23,28 @@ renderElement(mainNavElem, tripControls, `beforeend`);
 // Render mainFilters
 renderElement(new MainFilters().getElement(), tripControls, `beforeend`);
 
+// api
+const AUTHORIZATION = `Basic dXNlckBwYXNzd29yZAo=${Math.random()}`;
+const END_POINT = `https://htmlacademy-es-9.appspot.com/big-trip`;
+const tripEvents = document.querySelector(`.trip-events`);
+const api = new API({endPoint: END_POINT, authorization: AUTHORIZATION});
+const onDataChange = (actionType, update) => {
+  switch(actionType) {
+    case `delete`:
+      api.deletePoint({id: update.id})
+      .then(() => api.getPoints())
+      .then((pointsArray) => tripController._rerender(pointsArray));
+      break;
+    case `update`:
+      api.updatePoint({id: update.id, data: toModelPoint(update)})
+      .then(() => api.getPoints())
+      .then((pointsArray) => tripController._rerender(pointsArray));
+    break;
+  }
+};
+const tripController = new TripController(tripEvents, onDataChange);
+api.getPoints().then(points => tripController.init(points))
+/*
 // Create an array of events
 const pointsArray = [];
 for (let i = 0; i < EVENTS_COUNTER; i++) {
@@ -32,9 +55,8 @@ for (let i = 0; i < EVENTS_COUNTER; i++) {
     pointsArray[i].endingTime = x;
   }
 }
+*/
 // render table of events
-const tripController = new TripController(tripEvents, pointsArray);
-tripController.init();
 
 // render stats
 const stats = new Stats(pointsArray);

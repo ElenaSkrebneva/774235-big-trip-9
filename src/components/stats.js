@@ -46,17 +46,17 @@ export class Stats extends Component {
           }
         },
         scales: {
-            yAxes: [{
-                ticks: {
-                    fontColor: 'white'
-                },
-            }],
+          yAxes: [{
+            ticks: {
+              fontColor: `white`
+            },
+          }],
           xAxes: [{
-                ticks: {
-                    fontColor: 'white',
-                    min: 0,
-                },
-            }]
+            ticks: {
+              fontColor: `white`,
+              min: 0,
+            },
+          }]
         },
         legend: {
           display: false
@@ -88,11 +88,11 @@ export class Stats extends Component {
         }
       });
     });
-    Object.keys(objTransport).forEach(key => {
+    Object.keys(objTransport).forEach((key) => {
       if (objTransport[key] === 0) {
         delete objTransport[key];
       }
-    })
+    });
     const transportCtx = new Chart(this.getElement().querySelector(`.statistics__chart--transport`), {
       plugins: [ChartDataLabels],
       type: `horizontalBar`,
@@ -113,18 +113,18 @@ export class Stats extends Component {
           }
         },
         scales: {
-            yAxes: [{
-                ticks: {
-                    fontColor: 'white'
-                },
-            }],
+          yAxes: [{
+            ticks: {
+              fontColor: `white`
+            },
+          }],
           xAxes: [{
-                ticks: {
-                    fontColor: 'white',
-                    min: 0,
-                    stepSize: 1,
-                },
-            }]
+            ticks: {
+              fontColor: `white`,
+              min: 0,
+              stepSize: 1,
+            },
+          }]
         },
         legend: {
           display: false
@@ -138,7 +138,7 @@ export class Stats extends Component {
         }
       }
     });
-/*
+    /*
     // type-time spent chart
     const typeSet = new Set(arr.map(point => point.type));
     const typeArr = Array.from(typeSet);

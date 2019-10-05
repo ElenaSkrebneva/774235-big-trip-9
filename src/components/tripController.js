@@ -5,17 +5,17 @@ import {TripSorters} from './tripSorters.js';
 import {EventController} from './eventController.js';
 
 export class TripController {
-  constructor(container, arr) {
+  constructor(container, onDataChange) {
     this._container = container;
-    this.points = arr;
     this._sorter = new TripSorters();
     this._subscriptions = [];
     this._onChangeView = this._onChangeView.bind(this);
     this._onDataChange = this._onDataChange.bind(this);
     this._creatingPoint = null;
+    this._tripDays = new TripDays();
   }
   _renderLists(slices) {
-    renderHTML(new TripDays().getTemplate(slices), this._container, `beforeend`);
+    renderHTML(this._tripDays.getTemplate(slices), this._container, `beforeend`);
     const tripDaysElem = document.querySelectorAll(`.trip-days__item`);
     // Render a day list of events for every day
     for (let i = 0; i < slices.length; i++) {
@@ -23,38 +23,24 @@ export class TripController {
     }
     // Render events
     const eventItemsElem = document.querySelectorAll(`.trip-events__item`);
-    // mode for creating a new event
-    for (let i = 0; i < this.points.length; i++) {
-      if (
-        this.points[i].type === `sightseeing` &&
-        this.points[i].destination === `` &&
-        this.points[i].description === `` &&
-        this.points[i].beginningTime === new Date(0).getTime() &&
-        this.points[i].endingTime === new Date(0).getTime() &&
-        this.points[i].price === 0
-      ) {
-        const eventController = new EventController(this.points[i], eventItemsElem[i], `adding`, this._onChangeView, this._onDataChange);
-        this._subscriptions.push(eventController.setDefaultView.bind(eventController));
-      } else {
-        const eventController = new EventController(this.points[i], eventItemsElem[i], `default`, this._onChangeView, this._onDataChange);
-        this._subscriptions.push(eventController.setDefaultView.bind(eventController));
-      }
-    }
+    const eventController = new EventController(this.points[i], eventItemsElem[i], `default`, this._onChangeView, this._onDataChange);
+    eventController.renderevent();
+    this._subscriptions.push(eventController.setDefaultView.bind(eventController));
   }
-  _renderEventsByDay() {
+  _renderEventsByDay(arr) {
     this._container.innerHTML = ``;
     renderElement(this._sorter.getElement(), this._container, `beforeend`);
-    this.points.sort((a, b) => {
+    arr.sort((a, b) => {
       return a.beginningTime - b.beginningTime;
     });
     const slices = [];
-    for (let i = 0, g = 0; i < this.points.length; i += 0) {
+    for (let i = 0, g = 0; i < arr.length; i += 0) {
       slices[g] = [];
-      slices[g].push(this.points[i]);
+      slices[g].push(arr[i]);
       let h = i + 1;
-      while (h < this.points.length &&
-        (new Date(this.points[i].beginningTime)).getDate() === (new Date(this.points[h].beginningTime)).getDate()) {
-        slices[g].push(this.points[h]);
+      while (h < arr.length &&
+        (new Date(arr[i].beginningTime)).getDate() === (new Date(arr[h].beginningTime)).getDate()) {
+        slices[g].push(arr[h]);
         h++;
       }
       i = h;
@@ -62,26 +48,26 @@ export class TripController {
     }
     this._renderLists(slices);
   }
-  _renderEventsByPrice() {
-    this.points.sort((a, b) => {
+  _renderEventsByPrice(arr) {
+    arr.sort((a, b) => {
       return a.price - b.price;
     });
     this._container.innerHTML = ``;
     renderElement(this._sorter.getElement(), this._container, `beforeend`);
-    this._renderLists([this.points]);
+    this._renderLists([arr]);
   }
-  _renderEventsByTime() {
-    this.points.sort((a, b) => {
+  _renderEventsByTime(arr) {
+    arr.sort((a, b) => {
       return (a.endingTime - a.beginningTime) - (b.endingTime - b.beginningTime);
     });
     this._container.innerHTML = ``;
     renderElement(this._sorter.getElement(), this._container, `beforeend`);
-    this._renderLists([this.points]);
+    this._renderLists([arr]);
   }
-  _renderTripInfo() {
+  _renderTripInfo(arr) {
     // render main info
     const tripInfoTitleElem = document.querySelector(`.trip-info__title`);
-    const destAr = this.points.map((point) => point.destination);
+    const destAr = arr.map((point) => point.destination);
     const destSet = new Set(destAr);
     const destArFromSet = Array.from(destSet);
     switch (destSet.size) {
@@ -101,27 +87,27 @@ export class TripController {
         tripInfoTitleElem.innerHTML = `${destArFromSet[0]}&mdash;...&mdash;${destArFromSet[destArFromSet.length - 1]}`;
     }
   }
-  _renderTripSum() {
+  _renderTripSum(arr) {
     // render the trip sum
     let tripCost = 0;
-    if (this.points.length > 0) {
-      tripCost = this.points.reduce((sum, point) => sum + point.price, 0);
+    if (arr.length > 0) {
+      tripCost = arr.reduce((sum, point) => sum + point.price, 0);
     }
     document.querySelector(`.trip-info__cost-value`).innerHTML = tripCost;
   }
-  init() {
+  init(arr) {
     // if there are events to render
-    if (this.points.length > 0) {
+    if (arr.length > 0) {
       // sorter action
-      this._renderEventsByDay();
+      this._renderEventsByDay(arr);
       document.querySelector(`#sort-event`).addEventListener(`click`, () => {
-        this._renderEventsByDay();
+        this._renderEventsByDay(arr);
       });
       document.querySelector(`#sort-price`).addEventListener(`click`, () => {
-        this._renderEventsByPrice();
+        this._renderEventsByPrice(arr);
       });
       document.querySelector(`#sort-time`).addEventListener(`click`, () => {
-        this._renderEventsByTime();
+        this._renderEventsByTime(arr);
       });
 
       // filters actions
@@ -168,29 +154,29 @@ export class TripController {
           eve.closest(`.trip-days__item`).style.display = `default`;
         });
       }
-      this._renderTripInfo();
-      this._renderTripSum();
+      this._renderTripInfo(arr);
+      this._renderTripSum(arr);
     }
     // if no events to render
-    if (this.points.length === 0) {
+    if (arr.length === 0) {
       const tripEventsElem = document.querySelector(`.trip-events`);
       tripEventsElem.innerHTML = `<p class="trip-events__msg">Click New Event to create your first point</p>`;
     }
   }
-  _rerender() {
+  _rerender(arr) {
     // if lists were already rendered before
     if (document.querySelector(`.trip-days`)) {
       document.querySelector(`.trip-days`).remove();
     }
     // if there are events to render
-    if (this.points.length > 0) {
+    if (arr.length > 0) {
       // sorter action
-      this._renderEventsByDay();
-      this._renderTripInfo();
-      this._renderTripSum();
+      this._renderEventsByDay(arr);
+      this._renderTripInfo(arr);
+      this._renderTripSum(arr);
     }
     // if no events to render
-    if (this.points.length === 0) {
+    if (arr.length === 0) {
       const tripEventsElem = document.querySelector(`.trip-events`);
       tripEventsElem.innerHTML = `<p class="trip-events__msg">Click New Event to create your first point</p>`;
     }
@@ -198,6 +184,7 @@ export class TripController {
   _onChangeView() {
     this._subscriptions.forEach((it) => it());
   }
+  /*
   _onDataChange(newData, oldData) {
     const indx = this.points.findIndex((point) => point === oldData);
     if (newData === null) {
@@ -211,20 +198,29 @@ export class TripController {
     }
     this._rerender();
   }
+  */
   createPoint() {
     if (this._creatingPoint) {
       return;
     }
+    this._creatingPoint = true;
     const defaultPoint = {
-      type: `sightseeing`,
+      type: `trip`,
       destination: ``,
       description: ``,
-      beginningTime: new Date(0).getTime(),
-      endingTime: new Date(0).getTime(),
+      beginningTime: Date.now(),
+      endingTime: Date.now(),
       price: 0,
       isFavorite: false,
-      optionals: new Set()
+      optionals: new Set(),
+      pictures: [],
     };
-    this._onDataChange(defaultPoint, null);
+    const newEventItem = document.createElement(`li`);
+    newEventItem.classList.add(`trip-events__item`)
+    this._tripDays.getElement().querySelector(`trip-events__list`).prepend(newEventItem);
+    const eventController = new EventController(defaultPoint, newEventItem, `adding`, this._onChangeView, this._onDataChange);
+    eventController.renderEvent();
+    this._subscriptions.push(eventController.setDefaultView.bind(eventController));
+    this._creatingPoint = false;
   }
 }

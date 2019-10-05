@@ -3,6 +3,7 @@ import {EditEvent} from './editEvent.js';
 import flatpickr from 'flatpickr';
 import 'flatpickr/dist/flatpickr.min.css';
 import 'flatpickr/dist/themes/light.css';
+
 export class EventController {
   constructor(data, parent, mode, onChangeView, onDataChange) {
     this._data = data;
@@ -12,39 +13,45 @@ export class EventController {
     this._onDataChange = onDataChange;
     this._onChangeView = onChangeView;
     this._mode = mode;
-    this.renderEvent();
+    this.bind();
   }
-  renderEvent() {
-    const card = this._card;
-    const cardEdit = this._cardEdit;
-    flatpickr(cardEdit.getElement().querySelector(`#event-start-time-1`), {
+  bind() {
+    const card = this._card.getElement();
+    const cardEdit = this._cardEdit.getElement();
+    const load = (isSuccess) => {
+      return new Promise((res, rej) => {
+        setTimeout(isSuccess ? res : rej, 2000)
+      })
+    };
+    flatpickr(cardEdit.querySelector(`#event-start-time-1`), {
       altInput: true,
       allowInput: true,
       defaultDate: this._data.beginningTime
     });
-    flatpickr(cardEdit.getElement().querySelector(`#event-end-time-1`), {
+    flatpickr(cardEdit.querySelector(`#event-end-time-1`), {
       altInput: true,
       allowInput: true,
       defaultDate: this._data.endingTime
     });
     const onEscKeyDown = (evt) => {
       if (evt.key === `Escape` || evt.key === `Esc`) {
-        cardEdit.getElement().replaceWith(card.getElement());
+        cardEdit.replaceWith(card);
         document.removeEventListener(`keydown`, onEscKeyDown);
       }
     };
-    card.getElement().querySelector(`.event__rollup-btn`).addEventListener(`click`, () => {
+    card.querySelector(`.event__rollup-btn`).addEventListener(`click`, () => {
       this._onChangeView();
-      card.getElement().replaceWith(cardEdit.getElement());
+      card.replaceWith(cardEdit);
       document.addEventListener(`keydown`, onEscKeyDown);
     });
-    cardEdit.getElement().querySelector(`.event__rollup-btn`).addEventListener(`click`, () => {
-      cardEdit.getElement().replaceWith(card.getElement());
+    cardEdit.querySelector(`.event__rollup-btn`).addEventListener(`click`, () => {
+      cardEdit.replaceWith(card);
       document.removeEventListener(`keydown`, onEscKeyDown);
     });
-    cardEdit.getElement().onsubmit = (evt) => {
+    cardEdit.onsubmit = (evt) => {
       evt.preventDefault();
-      const offerSelectors = document.querySelectorAll(`.event__offer-selector`);
+      cardEdit.querySelector(`.event__save-btn`).disabled = true;
+      const offerSelectors = cardEdit.querySelectorAll(`.event__offer-selector`);
       const optionals = [];
       offerSelectors.forEach((offer) => {
         const name = offer.querySelector(`.event__offer-title`).innerHTML;
@@ -57,85 +64,63 @@ export class EventController {
         };
         optionals.push(optional);
       });
-      const formData = new FormData(cardEdit.getElement());
+      const pictures = cardEdit.querySelectorAll(`.event__photo`).map((pictureElem) => {
+        src: pictureElem.src,
+        description: pictureElem.alt
+      });
+      const formData = new FormData(cardEdit);
       const entry = {
         type: formData.get(`event-type`),
         destination: formData.get(`event-destination`),
-        description: document.querySelector(`.event__destination-description`).innerHTML,
+        description: cardEdit.querySelector(`.event__destination-description`).innerHTML,
         beginningTime: new Date(formData.get(`event-start-time`)).getTime(),
         endingTime: new Date(formData.get(`event-end-time`)).getTime(),
         isFavorite: formData.get(`event-favorite`),
         price: parseInt(formData.get(`event-price`), 10),
-        optionals: new Set(optionals)
+        optionals: optionals,
+        pictures: pictures
       };
-      if (entry.type !== this._data.type) {
-        const optionalsList = [
-          {
-            name: `Add luggage`,
-            price: 10,
-            flag: false
-          },
-          {
-            name: `Switch to comfort class`,
-            price: 150,
-            flag: false
-          },
-          {
-            name: `Add meal`,
-            price: 2,
-            flag: false
-          },
-          {
-            name: `Choose seats`,
-            price: 9,
-            flag: false
-          }
-        ];
-        let num = Math.round(Math.random() * 2);
-        const optionalsSet = new Set();
-        for (let i = 0; i <= num; i++) {
-          optionalsSet.add(optionalsList[Math.floor(Math.random() * optionalsList.length)]);
-        }
-        entry.optionals = optionalsSet;
-      }
-      if (entry.destination !== this._data.destination) {
-        const descriptionSentances = [
-          `Lorem ipsum dolor sit amet, consectetur adipiscing elit. `,
-          `Cras aliquet varius magna, non porta ligula feugiat eget. `,
-          `Fusce tristique felis at fermentum pharetra. `,
-          `Aliquam id ori ut lectus varius viverra. `,
-          `Nullam nunc ex, convallis sed finibus eget, sollicitudin eget ante. `,
-          `Phasellus eros mauris, condimentum sed nibh vitae, sodales efficitur ipsum. `,
-          `Sed blandit, eros vel aliquam faucibus, purus ex euismod diam, eu luctus nunc ante ut dui. `,
-          `Sed sed nisi sed augue convallis suscipit in sed felis. `,
-          `Aliquam erat volutpat. `,
-          `Nunc fermentum tortor ac porta dapibus. `,
-          `In rutrum ac purus sit amet tempus`
-        ];
-        let num = Math.floor((Math.random() + 0.34) * 2.6);
-        let desc = ``;
-        for (let i = 0; i <= num; i++) {
-          desc += descriptionSentances[Math.floor(Math.random() * descriptionSentances.length)];
-        }
-        entry.description = desc;
-      }
-      this._onDataChange(entry, this._data);
+      this._onDataChange(`update`, entry);
+      this._updateData(entry);
+      this._unbind();
+      this._bind();
+      cardEdit.replaceWith(this._card.getElement());
       document.removeEventListener(`keydown`, onEscKeyDown);
+
     };
-    cardEdit.getElement().onreset = (evt) => {
+    cardEdit.onreset = (evt) => {
       evt.preventDefault();
-      this._onDataChange(null, this._data);
+      this._onDataChange(`delete`, this._data);
       document.removeEventListener(`keydown`, onEscKeyDown);
     };
+  }
+  _unbind() {
+    this._card._element = null;
+    this._cardEdit._element = null;
+  }
+  _updateData(entry) {
+    this._data.type = entry.type;
+    this._data.destination = entry.destination;
+    this._data.description = entry.description;
+    this._data.beginningTime = entry.beginningTime;
+    this._data.endingTime = entry.endingTime;
+    this._data.isFavorite = entry.isFavorite;
+    this._data.price = entry.price;
+    this._data.optionals = entry.optionals;
+    this._data.pictures = entry.pictures;
+  }
+  renderEvent() {
     if (this._mode === `adding`) {
-      this._parent.appendChild(cardEdit.getElement());
+      this._parent.appendChild(this._cardEdit.getElement());
     } else {
-      this._parent.appendChild(card.getElement());
+      this._parent.appendChild(this._card.getElement());
     }
   }
   setDefaultView() {
-    if (this._parent.contains(this._cardEdit.getElement())) {
-      this._cardEdit.getElement().replaceWith(this._card.getElement());
+    const card = this._card.getElement();
+    const cardEdit = this._cardEdit.getElement();
+    if (this._parent.contains(cardEdit)) {
+      cardEdit.replaceWith(card);
     }
   }
 }

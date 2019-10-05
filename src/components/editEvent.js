@@ -1,6 +1,6 @@
 import {Component} from './abstractComponent.js';
 export class EditEvent extends Component {
-  constructor({type, destination, description, beginningTime, endingTime, price, isFavorite, optionals}) {
+  constructor({type, destination, description, beginningTime, endingTime, price, isFavorite, optionals, pictures}) {
     super();
     this._type = type;
     this._destination = destination;
@@ -10,6 +10,7 @@ export class EditEvent extends Component {
     this._price = price;
     this._isFavorite = isFavorite;
     this._optionals = optionals;
+    this._pictures = pictures;
   }
 
   getTemplate() {
@@ -127,11 +128,9 @@ export class EditEvent extends Component {
 
               <div class="event__photos-container">
                 <div class="event__photos-tape">
-                  <img class="event__photo" src="http://picsum.photos/300/150?r=${Math.random()}" alt="Event photo">
-                  <img class="event__photo" src="http://picsum.photos/300/150?r=${Math.random()}" alt="Event photo">
-                  <img class="event__photo" src="http://picsum.photos/300/150?r=${Math.random()}" alt="Event photo">
-                  <img class="event__photo" src="http://picsum.photos/300/150?r=${Math.random()}" alt="Event photo">
-                  <img class="event__photo" src="http://picsum.photos/300/150?r=${Math.random()}" alt="Event photo">
+                  ${this._pictures.map(picture => `
+                    <img class="event__photo" src=${picture.src} alt="${picture.description}">
+                    `).join(``)}
                 </div>
               </div>
             </section>
